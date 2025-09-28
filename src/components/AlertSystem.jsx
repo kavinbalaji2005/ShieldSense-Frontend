@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertTriangle, AlertCircle, Info, CheckCircle, Filter, Download } from 'lucide-react';
+import { X, TriangleAlert as AlertTriangle, CircleAlert as AlertCircle, Info, CircleCheck as CheckCircle, ListFilter as Filter, Download } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const alertIcons = {

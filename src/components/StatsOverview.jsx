@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Wifi, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Activity, Wifi, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle } from 'lucide-react';
 
 export default function StatsOverview({ stats, isConnected, lastUpdate }) {
   const statCards = [

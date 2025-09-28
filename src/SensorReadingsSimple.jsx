@@ -28,12 +28,16 @@ export default function SensorReadingsSimple() {
   const [sensorData, setSensorData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState([]);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
         console.log("Fetching sensor data...");
+
+        // First, try to get all sensors data using the correct API format
         const response = await fetch(
           "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/sensors"
         );
@@ -45,29 +49,34 @@ export default function SensorReadingsSimple() {
         const response_data = await response.json();
         console.log("Full API response:", response_data);
 
-        // Handle new API format with data array
-        if (response_data.data && Array.isArray(response_data.data)) {
-          // Find ESP32-01 device in the data array
-          const esp32Device = response_data.data.find(
-            (device) => device.deviceId === "ESP32-01"
-          );
-          if (esp32Device) {
-            console.log("ESP32-01 data:", esp32Device);
-            setSensorData(esp32Device);
-          } else {
-            // If ESP32-01 not found, use the first available device
-            console.log(
-              "ESP32-01 not found, using first device:",
-              response_data.data[0]
-            );
-            setSensorData(response_data.data[0]);
-          }
-        } else if (response_data["ESP32-01"]) {
-          // Handle old API format (fallback)
-          console.log("ESP32-01 data (old format):", response_data["ESP32-01"]);
+        // According to API docs, /sensors should return format: { "ESP32-01": {...}, "ESP32-02": {...} }
+        if (response_data["ESP32-01"]) {
+          console.log("ESP32-01 data:", response_data["ESP32-01"]);
           setSensorData(response_data["ESP32-01"]);
+        } else if (response_data["ESP32-02"]) {
+          // Fallback to ESP32-02 if ESP32-01 is not available
+          console.log(
+            "ESP32-01 not found, using ESP32-02:",
+            response_data["ESP32-02"]
+          );
+          setSensorData(response_data["ESP32-02"]);
         } else {
-          throw new Error("No sensor data found in response");
+          // Handle array format or other variations
+          console.log("Checking for data array format...");
+          if (response_data.data && Array.isArray(response_data.data)) {
+            const esp32Device = response_data.data.find(
+              (device) => device.deviceId === "ESP32-01"
+            );
+            if (esp32Device) {
+              setSensorData(esp32Device);
+            } else if (response_data.data.length > 0) {
+              setSensorData(response_data.data[0]);
+            } else {
+              throw new Error("No devices found in data array");
+            }
+          } else {
+            throw new Error("No sensor data found in expected format");
+          }
         }
       } catch (err) {
         console.error("Error fetching sensor data:", err);
@@ -76,7 +85,39 @@ export default function SensorReadingsSimple() {
         setLoading(false);
       }
     }
+
+    // Fetch alerts and stats in parallel
+    async function fetchAdditionalData() {
+      try {
+        const [alertsResponse, statsResponse] = await Promise.all([
+          fetch(
+            "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/alerts"
+          ),
+          fetch(
+            "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/stats/overview"
+          ),
+        ]);
+
+        if (alertsResponse.ok) {
+          const alertsData = await alertsResponse.json();
+          setAlerts(alertsData);
+          console.log("Alerts data:", alertsData);
+        }
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          // Handle the actual API response format: { status: "success", data: {...} }
+          setStats(statsData.data || statsData);
+          console.log("Stats data:", statsData);
+        }
+      } catch (err) {
+        console.log("Additional data fetch failed:", err);
+        // Don't set error state as this is optional data
+      }
+    }
+
     fetchData();
+    fetchAdditionalData();
   }, []);
 
   if (loading) {
@@ -105,7 +146,123 @@ export default function SensorReadingsSimple() {
 
   return (
     <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-bold text-center">Sensor Dashboard</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Sensor Dashboard</h1>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
+        >
+          🔄 Refresh
+        </button>
+      </div>
+
+      {/* Device Info */}
+      {sensorData && (
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <h3 className="text-lg font-semibold mb-2">Device Information</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="font-medium">Device ID:</span>{" "}
+              {sensorData.deviceId}
+            </div>
+            <div>
+              <span className="font-medium">Name:</span> {sensorData.name}
+            </div>
+            <div>
+              <span className="font-medium">Alert Level:</span>
+              <span
+                className={`ml-2 px-2 py-1 rounded text-xs font-semibold ${
+                  sensorData.alertLevel === "critical"
+                    ? "bg-red-100 text-red-800"
+                    : sensorData.alertLevel === "danger"
+                    ? "bg-red-200 text-red-900"
+                    : sensorData.alertLevel === "warning"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-green-100 text-green-800"
+                }`}
+              >
+                {sensorData.alertLevel}
+              </span>
+            </div>
+            <div>
+              <span className="font-medium">Last Update:</span>{" "}
+              {new Date(sensorData.timestamp).toLocaleString()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* System Overview Stats */}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <h3 className="text-sm font-semibold text-gray-600">
+              Total Devices
+            </h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {stats.totalDevices || 0}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <h3 className="text-sm font-semibold text-gray-600">
+              Active Devices
+            </h3>
+            <p className="text-2xl font-bold text-green-600">
+              {stats.activeDevices || 0}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <h3 className="text-sm font-semibold text-gray-600">
+              Alerts Today
+            </h3>
+            <p className="text-2xl font-bold text-red-600">
+              {stats.alertsToday || 0}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Alerts Section */}
+      {alerts && alerts.length > 0 && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            Recent Alerts ({alerts.length})
+          </h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {alerts.slice(0, 10).map((alert, index) => (
+              <div key={index} className="bg-white rounded p-3 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-red-700">
+                    {alert.deviceId}
+                  </span>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-semibold ${
+                      alert.alertLevel === "critical"
+                        ? "bg-red-100 text-red-800"
+                        : alert.alertLevel === "danger"
+                        ? "bg-red-200 text-red-900"
+                        : alert.alertLevel === "warning"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {alert.alertLevel}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(alert.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))}
+            {alerts.length > 10 && (
+              <div className="text-center text-sm text-gray-500 mt-2">
+                ... and {alerts.length - 10} more alerts
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Debug Info */}
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">

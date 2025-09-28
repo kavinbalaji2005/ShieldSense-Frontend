@@ -1,26 +1,27 @@
 import React from "react";
-import { motion, AnimatePresence } from 'framer-motion';
-import { Toaster } from 'react-hot-toast';
-import { RefreshCw, Settings, Download } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
+import { Toaster } from "react-hot-toast";
+import { RefreshCw } from "lucide-react";
 
-import { useRealTimeData } from './hooks/useRealTimeData';
-import SmartGauge from './components/SmartGauge';
-import AlertSystem from './components/AlertSystem';
-import InteractiveMap from './components/InteractiveMap';
-import StatsOverview from './components/StatsOverview';
-import DeviceInfo from './components/DeviceInfo';
-import { GaugeSkeleton, CardSkeleton } from './components/LoadingSkeleton';
+import { useRealTimeData } from "./hooks/useRealTimeData";
+import SmartGauge from "./components/SmartGauge";
+import AlertSystem from "./components/AlertSystem";
+import InteractiveMap from "./components/InteractiveMap";
+import SensorInfo from "./components/SensorInfo";
+import StatsOverview from "./components/StatsOverview";
+import DeviceInfo from "./components/DeviceInfo";
+import { GaugeSkeleton, CardSkeleton } from "./components/LoadingSkeleton";
 
 export default function SensorReadingsSimple() {
-  const { 
-    sensorData, 
-    alerts, 
-    stats, 
-    loading, 
-    error, 
-    lastUpdate, 
-    isConnected, 
-    refetch 
+  const {
+    sensorData,
+    alerts,
+    stats,
+    loading,
+    error,
+    lastUpdate,
+    isConnected,
+    refetch,
   } = useRealTimeData();
 
   if (loading) {
@@ -32,14 +33,14 @@ export default function SensorReadingsSimple() {
             <div className="h-8 bg-gray-200 rounded w-64 animate-pulse" />
             <div className="h-10 bg-gray-200 rounded w-24 animate-pulse" />
           </div>
-          
+
           {/* Stats skeleton */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
-          
+
           {/* Gauges skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -62,7 +63,9 @@ export default function SensorReadingsSimple() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">⚠️</span>
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Connection Error</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Connection Error
+          </h3>
           <p className="text-gray-600 mb-6">{error}</p>
           <motion.button
             onClick={refetch}
@@ -74,7 +77,6 @@ export default function SensorReadingsSimple() {
             Retry Connection
           </motion.button>
         </motion.div>
-        </div>
       </div>
     );
   }
@@ -86,7 +88,9 @@ export default function SensorReadingsSimple() {
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">📊</span>
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">No Data Available</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            No Data Available
+          </h3>
           <p className="text-gray-600">Waiting for sensor data...</p>
         </div>
       </div>
@@ -94,28 +98,39 @@ export default function SensorReadingsSimple() {
   }
 
   const sensorGauges = [
-    { label: 'Carbon Monoxide', value: sensorData.carbonMonoxide, max: 100, unit: 'ppm' },
-    { label: 'Smoke', value: sensorData.smoke, max: 100, unit: '%' },
-    { label: 'Methane', value: sensorData.methane, max: 500, unit: 'ppm' },
-    { label: 'Temperature', value: sensorData.temperature, max: 100, unit: '°C' },
-    { label: 'Humidity', value: sensorData.humidity, max: 100, unit: '%' },
-    { label: 'Pressure', value: sensorData.pressure, max: 1100, unit: 'hPa' }
+    {
+      label: "Carbon Monoxide",
+      value: sensorData.carbonMonoxide,
+      max: 100,
+      unit: "ppm",
+    },
+    { label: "Smoke", value: sensorData.smoke, max: 100, unit: "%" },
+    { label: "Methane", value: sensorData.methane, max: 500, unit: "ppm" },
+    {
+      label: "Temperature",
+      value: sensorData.temperature,
+      max: 100,
+      unit: "°C",
+    },
+    { label: "Humidity", value: sensorData.humidity, max: 100, unit: "%" },
+    { label: "Pressure", value: sensorData.pressure, max: 1100, unit: "hPa" },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#fff',
-            color: '#374151',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            background: "#fff",
+            color: "#374151",
+            boxShadow:
+              "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
           },
         }}
       />
-      
+
       <div className="p-6 space-y-8 max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -127,42 +142,17 @@ export default function SensorReadingsSimple() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               ShieldSense Dashboard
             </h1>
-            <p className="text-gray-600 mt-1">Real-time environmental monitoring system</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <motion.button
-              onClick={refetch}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={loading}
-            >
-              <motion.div
-                animate={loading ? { rotate: 360 } : {}}
-                transition={{ duration: 1, repeat: loading ? Infinity : 0, ease: "linear" }}
-              >
-                <RefreshCw size={16} />
-              </motion.div>
-              Refresh
-            </motion.button>
-            
-            <motion.button
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600 transition-all duration-200"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Settings size={16} />
-              Settings
-            </motion.button>
+            <p className="text-gray-600 mt-1">
+              Real-time environmental monitoring system
+            </p>
           </div>
         </motion.div>
 
         {/* Stats Overview */}
-        <StatsOverview 
-          stats={stats} 
-          isConnected={isConnected} 
-          lastUpdate={lastUpdate} 
+        <StatsOverview
+          stats={stats}
+          isConnected={isConnected}
+          lastUpdate={lastUpdate}
         />
 
         {/* Device Information */}
@@ -173,7 +163,7 @@ export default function SensorReadingsSimple() {
           {alerts && alerts.length > 0 && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
               <AlertSystem alerts={alerts} />
@@ -207,9 +197,16 @@ export default function SensorReadingsSimple() {
         </motion.div>
 
         {/* Interactive Map */}
-        <InteractiveMap 
-          lat={sensorData.gps_lat} 
-          lng={sensorData.gps_lon} 
+        <InteractiveMap
+          lat={sensorData?.gps_lat}
+          lng={sensorData?.gps_lon}
+          sensorData={sensorData}
+        />
+
+        {/* Sensor Location Info */}
+        <SensorInfo
+          lat={sensorData?.gps_lat}
+          lng={sensorData?.gps_lon}
           sensorData={sensorData}
         />
       </div>

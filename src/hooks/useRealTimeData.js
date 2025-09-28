@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useCallback } from "react";
+import toast from "react-hot-toast";
 
 export function useRealTimeData() {
   const [sensorData, setSensorData] = useState(null);
@@ -22,7 +22,7 @@ export function useRealTimeData() {
       }
 
       const responseData = await response.json();
-      
+
       let newSensorData = null;
       if (responseData["ESP32-01"]) {
         newSensorData = responseData["ESP32-01"];
@@ -39,25 +39,40 @@ export function useRealTimeData() {
         // Check for alert level changes
         if (sensorData && sensorData.alertLevel !== newSensorData.alertLevel) {
           const alertMessages = {
-            critical: '🚨 Critical Alert!',
-            danger: '⚠️ Danger Level Alert!',
-            warning: '⚡ Warning Alert!',
-            normal: '✅ System Normal'
+            critical: "🚨 Critical Alert!",
+            danger: "⚠️ Danger Level Alert!",
+            warning: "⚡ Warning Alert!",
+            normal: "✅ System Normal",
           };
-          
+
           toast(alertMessages[newSensorData.alertLevel], {
-            icon: newSensorData.alertLevel === 'critical' ? '🚨' : 
-                  newSensorData.alertLevel === 'danger' ? '⚠️' : 
-                  newSensorData.alertLevel === 'warning' ? '⚡' : '✅',
+            icon:
+              newSensorData.alertLevel === "critical"
+                ? "🚨"
+                : newSensorData.alertLevel === "danger"
+                ? "⚠️"
+                : newSensorData.alertLevel === "warning"
+                ? "⚡"
+                : "✅",
             duration: 5000,
             style: {
-              background: newSensorData.alertLevel === 'critical' ? '#fee2e2' : 
-                         newSensorData.alertLevel === 'danger' ? '#fef3c7' : 
-                         newSensorData.alertLevel === 'warning' ? '#fef3c7' : '#d1fae5',
-              color: newSensorData.alertLevel === 'critical' ? '#dc2626' : 
-                     newSensorData.alertLevel === 'danger' ? '#d97706' : 
-                     newSensorData.alertLevel === 'warning' ? '#d97706' : '#059669',
-            }
+              background:
+                newSensorData.alertLevel === "critical"
+                  ? "#fee2e2"
+                  : newSensorData.alertLevel === "danger"
+                  ? "#fef3c7"
+                  : newSensorData.alertLevel === "warning"
+                  ? "#fef3c7"
+                  : "#d1fae5",
+              color:
+                newSensorData.alertLevel === "critical"
+                  ? "#dc2626"
+                  : newSensorData.alertLevel === "danger"
+                  ? "#d97706"
+                  : newSensorData.alertLevel === "warning"
+                  ? "#d97706"
+                  : "#059669",
+            },
           });
         }
 
@@ -69,7 +84,7 @@ export function useRealTimeData() {
       console.error("Error fetching sensor data:", err);
       setError(err.message);
       setIsConnected(false);
-      toast.error('Connection lost. Retrying...', {
+      toast.error("Connection lost. Retrying...", {
         duration: 3000,
       });
     } finally {
@@ -80,8 +95,12 @@ export function useRealTimeData() {
   const fetchAdditionalData = useCallback(async () => {
     try {
       const [alertsResponse, statsResponse] = await Promise.all([
-        fetch("https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/alerts"),
-        fetch("https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/stats/overview"),
+        fetch(
+          "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/alerts"
+        ),
+        fetch(
+          "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/stats/overview"
+        ),
       ]);
 
       if (alertsResponse.ok) {
@@ -122,6 +141,6 @@ export function useRealTimeData() {
     refetch: () => {
       fetchSensorData();
       fetchAdditionalData();
-    }
+    },
   };
 }

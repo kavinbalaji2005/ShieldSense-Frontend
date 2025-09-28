@@ -73,6 +73,7 @@ export default function SensorReadingsSimple() {
             <RefreshCw size={16} />
             Retry Connection
           </motion.button>
+        </motion.div>
         </div>
       </div>
     );

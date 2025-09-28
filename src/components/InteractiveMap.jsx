@@ -55,7 +55,7 @@ export default function InteractiveMap({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <APIProvider apiKey="AIzaSyA8MCQGD1wTn57ODwsUvvauel_rHKpTHc4">
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <div className="h-96 w-full relative">
           {/* Google Map */}
           <GoogleMap

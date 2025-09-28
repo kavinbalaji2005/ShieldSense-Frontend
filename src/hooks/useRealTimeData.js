@@ -14,7 +14,7 @@ export function useRealTimeData() {
     try {
       setIsConnected(true);
       const response = await fetch(
-        "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/sensors"
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_SENSORS_ENDPOINT}`
       );
 
       if (!response.ok) {
@@ -96,10 +96,10 @@ export function useRealTimeData() {
     try {
       const [alertsResponse, statsResponse] = await Promise.all([
         fetch(
-          "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/alerts"
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_ALERTS_ENDPOINT}`
         ),
         fetch(
-          "https://0q89pgcw5f.execute-api.ap-south-1.amazonaws.com/dev/stats/overview"
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_STATS_ENDPOINT}`
         ),
       ]);
 

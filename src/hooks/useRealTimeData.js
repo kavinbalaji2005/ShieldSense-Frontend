@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 
 export function useRealTimeData() {
+  const [allDevices, setAllDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const [sensorData, setSensorData] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [stats, setStats] = useState(null);
@@ -23,19 +25,22 @@ export function useRealTimeData() {
 
       const responseData = await response.json();
 
-      let newSensorData = null;
-      if (responseData["ESP32-01"]) {
-        newSensorData = responseData["ESP32-01"];
-      } else if (responseData["ESP32-02"]) {
-        newSensorData = responseData["ESP32-02"];
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        const esp32Device = responseData.data.find(
-          (device) => device.deviceId === "ESP32-01"
-        );
-        newSensorData = esp32Device || responseData.data[0];
-      }
+      // Store all devices
+      if (responseData.data && Array.isArray(responseData.data)) {
+        setAllDevices(responseData.data);
+        
+        // If no device is selected, select the first one
+        const currentSelectedId = selectedDeviceId || responseData.data[0]?.deviceId;
+        if (!selectedDeviceId && responseData.data.length > 0) {
+          setSelectedDeviceId(currentSelectedId);
+        }
+        
+        // Find the selected device or fall back to first device
+        const newSensorData = responseData.data.find(
+          (device) => device.deviceId === currentSelectedId
+        ) || responseData.data[0];
 
-      if (newSensorData) {
+        if (newSensorData) {
         // Check for alert level changes
         if (sensorData && sensorData.alertLevel !== newSensorData.alertLevel) {
           const alertMessages = {
@@ -76,9 +81,10 @@ export function useRealTimeData() {
           });
         }
 
-        setSensorData(newSensorData);
-        setLastUpdate(new Date());
-        setError(null);
+          setSensorData(newSensorData);
+          setLastUpdate(new Date());
+          setError(null);
+        }
       }
     } catch (err) {
       console.error("Error fetching sensor data:", err);
@@ -90,7 +96,7 @@ export function useRealTimeData() {
     } finally {
       setLoading(false);
     }
-  }, [sensorData]);
+  }, [sensorData, selectedDeviceId]);
 
   const fetchAdditionalData = useCallback(async () => {
     try {
@@ -132,6 +138,9 @@ export function useRealTimeData() {
 
   return {
     sensorData,
+    allDevices,
+    selectedDeviceId,
+    setSelectedDeviceId,
     alerts,
     stats,
     loading,

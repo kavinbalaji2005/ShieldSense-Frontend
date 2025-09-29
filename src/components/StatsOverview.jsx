@@ -2,11 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Wifi, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle } from 'lucide-react';
 
-export default function StatsOverview({ stats, isConnected, lastUpdate }) {
+export default function StatsOverview({ stats, deviceCount, isConnected, lastUpdate }) {
   const statCards = [
     {
       title: 'Total Devices',
-      value: stats?.totalDevices || 0,
+      value: deviceCount || 0,
       icon: Activity,
       color: 'blue',
       bgColor: 'bg-blue-50',
@@ -15,7 +15,7 @@ export default function StatsOverview({ stats, isConnected, lastUpdate }) {
     },
     {
       title: 'Active Devices',
-      value: stats?.activeDevices || 0,
+      value: deviceCount || 0,
       icon: CheckCircle,
       color: 'green',
       bgColor: 'bg-green-50',

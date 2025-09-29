@@ -10,11 +10,15 @@ import InteractiveMap from "./components/InteractiveMap";
 import SensorInfo from "./components/SensorInfo";
 import StatsOverview from "./components/StatsOverview";
 import DeviceInfo from "./components/DeviceInfo";
+import DeviceSelector from "./components/DeviceSelector";
 import { GaugeSkeleton, CardSkeleton } from "./components/LoadingSkeleton";
 
 export default function SensorReadingsSimple() {
   const {
     sensorData,
+    allDevices,
+    selectedDeviceId,
+    setSelectedDeviceId,
     alerts,
     stats,
     loading,
@@ -148,9 +152,17 @@ export default function SensorReadingsSimple() {
           </div>
         </motion.div>
 
+        {/* Device Selector */}
+        <DeviceSelector
+          allDevices={allDevices}
+          selectedDeviceId={selectedDeviceId}
+          onDeviceChange={setSelectedDeviceId}
+        />
+
         {/* Stats Overview */}
         <StatsOverview
           stats={stats}
+          deviceCount={allDevices?.length || 0}
           isConnected={isConnected}
           lastUpdate={lastUpdate}
         />

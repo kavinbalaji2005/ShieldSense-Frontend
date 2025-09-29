@@ -152,19 +152,19 @@ export default function SensorReadingsSimple() {
           </div>
         </motion.div>
 
-        {/* Device Selector */}
-        <DeviceSelector
-          allDevices={allDevices}
-          selectedDeviceId={selectedDeviceId}
-          onDeviceChange={setSelectedDeviceId}
-        />
-
         {/* Stats Overview */}
         <StatsOverview
           stats={stats}
           deviceCount={allDevices?.length || 0}
           isConnected={isConnected}
           lastUpdate={lastUpdate}
+        />
+
+        {/* Device Selector */}
+        <DeviceSelector
+          allDevices={allDevices}
+          selectedDeviceId={selectedDeviceId}
+          onDeviceChange={setSelectedDeviceId}
         />
 
         {/* Device Information */}

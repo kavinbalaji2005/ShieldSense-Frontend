@@ -14,6 +14,13 @@ export function useRealTimeData() {
 
   const fetchSensorData = useCallback(async () => {
     try {
+      // Check if API URL is configured
+      if (!import.meta.env.VITE_API_BASE_URL) {
+        setIsConnected(false);
+        setLoading(false);
+        return;
+      }
+
       setIsConnected(true);
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}${
@@ -95,11 +102,13 @@ export function useRealTimeData() {
       }
     } catch (err) {
       console.error("Error fetching sensor data:", err);
-      setError(err.message);
       setIsConnected(false);
-      toast.error("Connection lost. Retrying...", {
-        duration: 3000,
-      });
+      // Only show toast if we had data before (not on initial load)
+      if (sensorData) {
+        toast.error("Connection lost. Retrying...", {
+          duration: 3000,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -107,6 +116,11 @@ export function useRealTimeData() {
 
   const fetchAdditionalData = useCallback(async () => {
     try {
+      // Skip if API URL is not configured
+      if (!import.meta.env.VITE_API_BASE_URL) {
+        return;
+      }
+
       const [alertsResponse, statsResponse] = await Promise.all([
         fetch(
           `${import.meta.env.VITE_API_BASE_URL}${

@@ -13,7 +13,8 @@ export default function SmartGauge({
   const [displayValue, setDisplayValue] = useState(0);
   const [trend, setTrend] = useState("stable");
 
-  const numValue = Number(value) || 0;
+  const isValueAvailable = value !== null && value !== undefined;
+  const numValue = isValueAvailable ? Number(value) : 0;
   const percentage = Math.min(Math.max(numValue / max, 0), 1);
 
   // Determine color based on thresholds
@@ -137,7 +138,7 @@ export default function SmartGauge({
             animate={{ scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            {displayValue.toFixed(1)}
+            {isValueAvailable ? displayValue.toFixed(1) : "-"}
           </motion.span>
           <span className="text-xs text-gray-500">{unit}</span>
         </div>
@@ -146,7 +147,7 @@ export default function SmartGauge({
       {/* Value and trend */}
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm text-gray-600">
-          {numValue.toFixed(1)} / {max} {unit}
+          {isValueAvailable ? `${numValue.toFixed(1)} / ${max} ${unit}` : "-"}
         </span>
         <AnimatePresence>
           {previousValue !== null && (

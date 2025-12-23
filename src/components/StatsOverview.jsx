@@ -16,7 +16,7 @@ export default function StatsOverview({
   const statCards = [
     {
       title: "Total Devices",
-      value: deviceCount || 0,
+      value: deviceCount || "-",
       icon: Activity,
       color: "blue",
       bgColor: "bg-blue-50",
@@ -25,7 +25,7 @@ export default function StatsOverview({
     },
     {
       title: "Active Devices",
-      value: deviceCount || 0,
+      value: deviceCount || "-",
       icon: CheckCircle,
       color: "green",
       bgColor: "bg-green-50",
@@ -34,7 +34,7 @@ export default function StatsOverview({
     },
     {
       title: "Alerts Today",
-      value: stats?.alertsToday || 0,
+      value: stats?.alertsToday ?? "-",
       icon: AlertTriangle,
       color: "red",
       bgColor: "bg-red-50",
